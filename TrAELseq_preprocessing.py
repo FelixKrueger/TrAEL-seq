@@ -11,7 +11,10 @@ import re
 
 # barcode (UMI) (8bp)    //    PolyT     //      Insert
 
-# After moving the UMI sequences, 
+# After moving the UMI sequences, the script looks for up to 3 T at the start of the sequence, and removes those.
+# Sequences with more than 3 Ts at the 5' end are clipped a maximum of 3 TTT
+
+# Script last modified 21 July 2020, Felix Krueger
 
 polyT = {}         # storing the number of Poly Ts at the start of the read (after the UMI)
 fhs = {}           # storing the filehandles for all output files
