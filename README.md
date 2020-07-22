@@ -2,7 +2,7 @@
 
 A collection of scripts for and information about TrAEL-seq. Last update 21 July 2020
 
-## TrAEL-seq pre-processing (UMI and Poly-T handling)
+### TrAEL-seq pre-processing (UMI and Poly-T handling)
 
 Raw TrAEL-seq FastQ reads are expected to have the following structure:
 
@@ -23,7 +23,7 @@ In its current form the script takes all FastQ files in a folder, and applies UM
 ```
 ./TrAELseq_preprocessing.py
 ```
-## Adapter-/quality trimming
+### Adapter-/quality trimming
 
 Following pre-processing, reads need to undergo adapter- and quality as per usual. A simple [Trim Galore](https://github.com/FelixKrueger/TrimGalore) run like this should do the trick:
 
@@ -31,20 +31,20 @@ Following pre-processing, reads need to undergo adapter- and quality as per usua
 trim_galore file_UMIed.fastq.gz
 ```
 
-## Alignment
+### Alignment
 
 UMI-pre-processed and adapter trimmed files were then aligned to the respective genome using [Bowtie2](http://bowtie-bio.sourceforge.net/bowtie2/index.shtml) using local alignments (option: `--local`).
 
-## Deduplication
+### Deduplication
 
 Finally, alignment results files [BAM] were then de-duplicated using [UmiBam](https://github.com/FelixKrueger/Umi-Grinder). This takes the mapping position as well as the UMI sequence into account (as perfect matches only).
 
 # Data analysis
 
-#### TrAEL-seq_ReadCountPlots.R - 
+### TrAEL-seq_ReadCountPlots.R - 
 
 This is a basic script for displaying read count quantification from TrAEL-seq over specified regions of the genome. As input it uses an annotated probe report exported from Seqmonk following quantification of reads (truncated to 1bp) using running windows of any size. Running this whole script should output a pdf file for a specified sample.
 
-#### TrAEL-seq_RFDPlots.R - 
+### TrAEL-seq_RFDPlots.R - 
 
 This is a basic script for calculating and displaying RFD (replication fork directionality) from TrAEL-seq over specified regions of the genome. As input it uses annotated probe reports from Seqmonk containing forward and reverse read counts (truncated to 1bp) for running windows of any size. Two types of plot can be output (separated by dashed lines in the script) - red and blue dot plots for individual samples, and line plots for multiple samples. 
