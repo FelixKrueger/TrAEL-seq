@@ -38,3 +38,13 @@ UMI-pre-processed and adapter trimmed files were then aligned to the respective 
 ## Deduplication
 
 Finally, alignment results files [BAM] were then de-duplicated using [UmiBam](https://github.com/FelixKrueger/Umi-Grinder). This takes the mapping position as well as the UMI sequence into account (as perfect matches only).
+
+# Data analysis
+
+#### TrAEL-seq_ReadCountPlots.R - 
+
+This is a basic script for displaying read count quantification from TrAEL-seq over specified regions of the genome. As input it uses an annotated probe report exported from Seqmonk following quantification of reads (truncated to 1bp) using running windows of any size. Running this whole script should output a pdf file for a specified sample.
+
+#### TrAEL-seq_RFDPlots.R - 
+
+This is a basic script for calculating and displaying RFD (replication fork directionality) from TrAEL-seq over specified regions of the genome. As input it uses annotated probe reports from Seqmonk containing forward and reverse read counts (truncated to 1bp) for running windows of any size. Two types of plot can be output (separated by dashed lines in the script) - red and blue dot plots for individual samples, and line plots for multiple samples. 
