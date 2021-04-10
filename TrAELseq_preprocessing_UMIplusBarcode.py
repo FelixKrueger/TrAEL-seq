@@ -11,12 +11,15 @@ import re
 # This is the expected structure of the FastQ files will be:
 
 # NNNNNNNNBBBB(A)nSEQUENCESPECIFIC whereas before it was NNNNNNNN(A)nSEQUENCESPECIFIC
-# NNNNNNNN (UMI) (8bp)    //    BBBB is the sample barcode (currently either AGTC or GACT)    //     PolyT (A)n is the poly(A)   //      Insert
+# NNNNNNNN (UMI)(8bp) // 
+# BBBB is the sample barcode (currently either AGTC or GACT) //
+# PolyA (A)n is the poly(A) //      
+# Insert
 
 # After moving the UMI and sample-level barcode sequences, the script looks for up to 3 T at the start of the sequence, and removes those.
 # Sequences with more than 3 Ts at the 5' end are clipped a maximum of 3 TTT
 
-# Script last modified 14 December 2020, Felix Krueger
+# Script last modified 09 April 2021, Felix Krueger
 
 polyT = {}         # storing the number of Poly Ts at the start of the read (after the UMI)
 fhs = {}           # storing the filehandles for all output files
@@ -43,6 +46,8 @@ def main(filename):
 	
 	print (f"Reading file: >{filename}<")
 	
+	faithless_barcodes = {}
+
 	# making output filehandles
 	make_out_filehandle("UMIed",filename)
 	with gzip.open(filename) as cf:
@@ -114,21 +119,38 @@ def main(filename):
 			
 			# print ("\n".join([readID, new_rest, line3, new_rest_qual]))
 
+			### First generation
 			# currently either AGTC or GACT 
-			if sampleBarcode == "AGTC" or sampleBarcode == "GACT":
+			# if sampleBarcode == "AGTC" or sampleBarcode == "GACT":
+			if sampleBarcode == "CTTG" or sampleBarcode == "TCGA":
 				# print (f"Expected: {sampleBarcode}")
 				fhs[sampleBarcode].write (("\n".join([readID, new_rest, line3, new_rest_qual]) + "\n").encode())
 			else:
 				# print (f"Unexpected/Unwanted")
 				fhs["unassigned"].write (("\n".join([readID, new_rest, line3, new_rest_qual]) + "\n").encode())
-				pass
+				if sampleBarcode not in faithless_barcodes.keys():
+					faithless_barcodes[sampleBarcode] = 0
+				faithless_barcodes[sampleBarcode] += 1
+				# pass
 			# sleep(1)
 			
+	
 	close_filehandles()
 	
+	barcode_count = 0
+	for rogue in sorted (faithless_barcodes, key=faithless_barcodes.get, reverse=True):
+		print (f"{rogue}\t{faithless_barcodes[rogue]}")
+		barcode_count += 1
+		if barcode_count == 50:
+			break
+
 	print (f"Total number of reads processed: {count}")
+	t_count = 0
 	for tees in sorted (polyT.keys()):
 		print (f"{tees}\t{polyT[tees]}")
+		t_count += 1
+		if t_count == 10:
+			break
 
 def make_out_filehandle(sample_name,filename):
 	
@@ -137,9 +159,19 @@ def make_out_filehandle(sample_name,filename):
 	# extracting useful parts from filename
 	# Example name: lane7265_ACTTGA_fob1_YPD_LIGseq_L001_R1.fastq.gz
 	
+
+	# 	Update 09 April 2021
+	#  	In the adaptor	What is actually read
+	# 1	GACT	agtc
+	# 2	AGTC	gact
+	# 3	CAAG	cttg
+	# 4	TCGA	tcga
+
 	# We will also need to add the sample level barcodes to the filename.
-	sample_level_barcode_1 = "AGTC" 
-	sample_level_barcode_2 = "GACT"
+	# sample_level_barcode_1 = "AGTC"  ### first generation
+	# sample_level_barcode_2 = "GACT"  ### first generation
+	sample_level_barcode_1 = "CTTG" 
+	sample_level_barcode_2 = "TCGA"
 
 	pattern = '(lane.*_L00\d)_(R\d.fastq.gz)'
 	p = re.compile(pattern)
@@ -149,6 +181,8 @@ def make_out_filehandle(sample_name,filename):
 	ending = m[0][1]
 	new_filename_1 = f"{sample}_{sample_name}_{sample_level_barcode_1}_{ending}"
 	new_filename_2 = f"{sample}_{sample_name}_{sample_level_barcode_2}_{ending}"
+
+
 	new_filename_3 = f"{sample}_{sample_name}_unassigned_{ending}"
 	# print (new_filename)
 
