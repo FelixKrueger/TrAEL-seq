@@ -87,13 +87,14 @@ def make_out_filehandle(sample_name,filename):
 	# extracting useful parts from filename
 	# Example name: lane7265_ACTTGA_fob1_YPD_LIGseq_L001_R1.fastq.gz
 	# lane7360_CAGATC_Colo_2_day_SEL_L001_R1.fastq.gz
-	pattern = '(lane.*_L00\d)_(R\d.fastq.gz)'
+	pattern = '(lane.*)_(L00\d)_(R\d.fastq.gz)'
 	p = re.compile(pattern)
 	print (filename)
 	m = p.findall(filename)
 	sample = m[0][0]
-	ending = m[0][1]
-	new_filename = f"{sample}_{sample_name}_{ending}"
+	lanenumber = m[0][1]
+	ending = m[0][2]
+	new_filename = f"{sample}_{sample_name}_{lanenumber}_{ending}"
 	# print (new_filename)
 	
 	outfh  = gzip.open (new_filename,mode='w')
