@@ -97,7 +97,7 @@ def make_out_filehandle(sample_name,filename):
 	new_filename = f"{sample}_{sample_name}_{lanenumber}_{ending}"
 	# print (new_filename)
 	
-	outfh  = gzip.open (new_filename,mode='w')
+	outfh  = gzip.open (new_filename,mode='w',compresslevel=3)
 	
 	return outfh
 	

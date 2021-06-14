@@ -188,7 +188,7 @@ def make_out_filehandle(sample_name,filename):
 
 	fhs[sample_level_barcode_1] = gzip.open (new_filename_1,mode='w')
 	fhs[sample_level_barcode_2] = gzip.open (new_filename_2,mode='w')
-	fhs["unassigned"] = gzip.open (new_filename_3,mode='w')
+	fhs["unassigned"] = gzip.open (new_filename_3,mode='w',compresslevel=3)
 
 def eprint(*args, **kwargs):
     print(*args, file=sys.stderr, **kwargs)	

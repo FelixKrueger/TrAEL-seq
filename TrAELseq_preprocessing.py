@@ -41,6 +41,9 @@ def main(filename):
 	print (f"Reading file: >{filename}<")
 	
 	outfh = make_out_filehandle("UMIed",filename)
+	pattern = '^T+'
+	p = re.compile(pattern)
+
 	with gzip.open(filename) as cf:
 	
 		while True:
@@ -72,11 +75,11 @@ def main(filename):
 			#print (f"{readID}\n{rest}\n{line3}\n{qual_rest}\n")
 			#sleep(1)
 
+
 			## STEP 2: Now we need to find a number of PolyTs at the start
 
-			pattern = '^T+'
-			p = re.compile(pattern)
 			m = p.match(rest)
+
 			
 			if m is None:
 				# Using what we aleady have if the read does not have T(s) at the start
@@ -105,6 +108,7 @@ def main(filename):
 				new_rest_qual = qual_rest[polyTlength::]
 				
 			readID = readID.replace(" ","_") # this is required for e.g. Bowtie2 to retain the last part of the read ID (= the UMI sequence)
+
 			
 			# print ("\n".join([readID, new_rest, line3, new_rest_qual]))
 			outfh.write (("\n".join([readID, new_rest, line3, new_rest_qual]) + "\n").encode())
@@ -131,7 +135,7 @@ def make_out_filehandle(sample_name,filename):
 	new_filename = f"{sample}_{sample_name}_{ending}"
 	# print (new_filename)
 	
-	outfh  = gzip.open (new_filename,mode='w')
+	outfh  = gzip.open (new_filename,mode='w',compresslevel=3)
 	
 	return outfh
 	
