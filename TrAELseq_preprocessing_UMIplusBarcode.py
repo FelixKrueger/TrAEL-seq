@@ -19,7 +19,7 @@ import re
 # After moving the UMI and sample-level barcode sequences, the script looks for up to 3 T at the start of the sequence, and removes those.
 # Sequences with more than 3 Ts at the 5' end are clipped a maximum of 3 TTT
 
-# Script last modified 09 April 2021, Felix Krueger
+# Script last modified  21 July 2021, Felix Krueger
 
 polyT = {}         # storing the number of Poly Ts at the start of the read (after the UMI)
 fhs = {}           # storing the filehandles for all output files
@@ -27,8 +27,11 @@ fhs = {}           # storing the filehandles for all output files
 def submain():
 	
 	print (f"Python version: {sys.version}.")
-	allfiles = glob("*.fastq.gz")
+	# allfiles = glob("*.fastq.gz")
+	# Changing to command line given list of arguments as infiles
+	allfiles = sys.argv[1:]
 	# print (allfiles)
+
 	allfiles.sort() # required as glob doesn't necessarily store files in alphabetical order
 	# print (allfiles)
 
@@ -121,8 +124,7 @@ def main(filename):
 
 			### First generation
 			# currently either AGTC or GACT 
-			# if sampleBarcode == "AGTC" or sampleBarcode == "GACT":
-			if sampleBarcode == "CTTG" or sampleBarcode == "TCGA":
+			if sampleBarcode == "CTTG" or sampleBarcode == "TCGA" or sampleBarcode == "TTCC" or sampleBarcode == "AAGG":
 				# print (f"Expected: {sampleBarcode}")
 				fhs[sampleBarcode].write (("\n".join([readID, new_rest, line3, new_rest_qual]) + "\n").encode())
 			else:
@@ -160,18 +162,23 @@ def make_out_filehandle(sample_name,filename):
 	# Example name: lane7265_ACTTGA_fob1_YPD_LIGseq_L001_R1.fastq.gz
 	
 
-	# 	Update 09 April 2021
-	#  	In the adaptor	What is actually read
-	# 1	GACT	agtc
-	# 2	AGTC	gact
+	### Update 21 July 2021
+	# 	TrAEL index	In the adaptor	What is actually read
+	# 1	GACT	agtc - no longer used
+	# 2	AGTC	gact - no longer used
 	# 3	CAAG	cttg
 	# 4	TCGA	tcga
+	# 5	GGAA	ttcc
+	# 6	CCTT	aagg
 
 	# We will also need to add the sample level barcodes to the filename.
 	# sample_level_barcode_1 = "AGTC"  ### first generation
 	# sample_level_barcode_2 = "GACT"  ### first generation
 	sample_level_barcode_1 = "CTTG" 
 	sample_level_barcode_2 = "TCGA"
+	sample_level_barcode_3 = "TTCC" 
+	sample_level_barcode_4 = "AAGG"
+	
 
 	pattern = '(lane.*_L00\d)_(R\d.fastq.gz)'
 	p = re.compile(pattern)
@@ -179,16 +186,19 @@ def make_out_filehandle(sample_name,filename):
 	m = p.findall(filename)
 	sample = m[0][0]
 	ending = m[0][1]
-	new_filename_1 = f"{sample}_{sample_name}_{sample_level_barcode_1}_{ending}"
-	new_filename_2 = f"{sample}_{sample_name}_{sample_level_barcode_2}_{ending}"
+	new_filename_1 = f"{sample}_{sample_name}_{sample_level_barcode_1}_index3_{ending}"
+	new_filename_2 = f"{sample}_{sample_name}_{sample_level_barcode_2}_index4_{ending}"
+	new_filename_3 = f"{sample}_{sample_name}_{sample_level_barcode_3}_index5_{ending}"
+	new_filename_4 = f"{sample}_{sample_name}_{sample_level_barcode_4}_index6_{ending}"
 
-
-	new_filename_3 = f"{sample}_{sample_name}_unassigned_{ending}"
+	new_filename_5 = f"{sample}_{sample_name}_unassigned_{ending}"
 	# print (new_filename)
 
-	fhs[sample_level_barcode_1] = gzip.open (new_filename_1,mode='w')
-	fhs[sample_level_barcode_2] = gzip.open (new_filename_2,mode='w')
-	fhs["unassigned"] = gzip.open (new_filename_3,mode='w',compresslevel=3)
+	fhs[sample_level_barcode_1] = gzip.open (new_filename_1,mode='wb',compresslevel=3)
+	fhs[sample_level_barcode_2] = gzip.open (new_filename_2,mode='wb',compresslevel=3)
+	fhs[sample_level_barcode_3] = gzip.open (new_filename_3,mode='wb',compresslevel=3)
+	fhs[sample_level_barcode_4] = gzip.open (new_filename_4,mode='wb',compresslevel=3)
+	fhs["unassigned"] = gzip.open (new_filename_5,mode='wb',compresslevel=3)
 
 def eprint(*args, **kwargs):
     print(*args, file=sys.stderr, **kwargs)	
