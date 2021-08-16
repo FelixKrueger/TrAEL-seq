@@ -59,4 +59,4 @@ A new eccDNA-seq protocol attempting to introduce UMIs produces reads with the f
 barcode (UMI) (8bp)    //    T     //      Insert
 ```
 
-Processing by `eccDNAseq_preprocessing.py` removed the UMI and write the sequence in the readIDs, and removes the next base which should be a T in 100% of cases.
+Processing by `eccDNAseq_preprocessing.py` removes the 8bp UMI, writes the sequence in the readIDs and removes the next base which should be a T in 100% of cases.
