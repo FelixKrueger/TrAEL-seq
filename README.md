@@ -48,3 +48,15 @@ This is a basic script for displaying read count quantification from TrAEL-seq o
 ### TrAEL-seq_RFDPlots.R - 
 
 This is a basic script for calculating and displaying RFD (replication fork directionality) from TrAEL-seq over specified regions of the genome. As input it uses annotated probe reports from Seqmonk containing forward and reverse read counts (truncated to 1bp) for running windows of any size. Two types of plot can be output (separated by dashed lines in the script) - red and blue dot plots for individual samples, and line plots for multiple samples. 
+
+
+
+### eccDNA-seq pre-processing (UMI and single-T handling)
+
+A new eccDNA-seq protocol attempting to introduce UMIs produces reads with the following structure:
+
+```
+barcode (UMI) (8bp)    //    T     //      Insert
+```
+
+Processing by `eccDNAseq_preprocessing.py` removed the UMI and write the sequence in the readIDs, and removes the next base which should be a T in 100% of cases.
