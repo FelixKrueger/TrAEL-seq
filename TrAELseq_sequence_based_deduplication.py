@@ -17,9 +17,9 @@ import re
 def submain():
 	
 	print (f"Python version: {sys.version}.")
-	allfiles = glob("*.fastq.gz")
+	# allfiles = glob("*.fastq.gz") 
+	allfiles = sys.argv[1:] # enables loop processing
 	allfiles.sort() # required as glob doesn't necessarily store files in alphabetical order
-
 
 	for filename in allfiles:
 		print (f"Reading in FastQ file:\t >> {filename} <<\n")

@@ -19,7 +19,7 @@ import re
 # After moving the UMI and sample-level barcode sequences, the script looks for up to 3 T at the start of the sequence, and removes those.
 # Sequences with more than 3 Ts at the 5' end are clipped a maximum of 3 TTT
 
-# Script last modified  21 July 2021, Felix Krueger
+# Script last modified  03 September 2021, Felix Krueger
 
 polyT = {}         # storing the number of Poly Ts at the start of the read (after the UMI)
 fhs = {}           # storing the filehandles for all output files
@@ -123,8 +123,8 @@ def main(filename):
 			# print ("\n".join([readID, new_rest, line3, new_rest_qual]))
 
 			### First generation
-			# currently either AGTC or GACT 
-			if sampleBarcode == "CTTG" or sampleBarcode == "TCGA" or sampleBarcode == "TTCC" or sampleBarcode == "AAGG":
+			# currently indexes 1, 3, 4, 5, or 6
+			if sampleBarcode == "AGTC" or sampleBarcode == "CTTG" or sampleBarcode == "TCGA" or sampleBarcode == "TTCC" or sampleBarcode == "AAGG":
 				# print (f"Expected: {sampleBarcode}")
 				fhs[sampleBarcode].write (("\n".join([readID, new_rest, line3, new_rest_qual]) + "\n").encode())
 			else:
@@ -172,12 +172,12 @@ def make_out_filehandle(sample_name,filename):
 	# 6	CCTT	aagg
 
 	# We will also need to add the sample level barcodes to the filename.
-	# sample_level_barcode_1 = "AGTC"  ### first generation
+	sample_level_barcode_1 = "AGTC"  ### first generation - now with a new supplier (Sept 03, 2021)
 	# sample_level_barcode_2 = "GACT"  ### first generation
-	sample_level_barcode_1 = "CTTG" 
-	sample_level_barcode_2 = "TCGA"
-	sample_level_barcode_3 = "TTCC" 
-	sample_level_barcode_4 = "AAGG"
+	sample_level_barcode_3 = "CTTG" 
+	sample_level_barcode_4 = "TCGA"
+	sample_level_barcode_5 = "TTCC" 
+	sample_level_barcode_6 = "AAGG"
 	
 
 	pattern = '(lane.*_L00\d)_(R\d.fastq.gz)'
@@ -186,19 +186,37 @@ def make_out_filehandle(sample_name,filename):
 	m = p.findall(filename)
 	sample = m[0][0]
 	ending = m[0][1]
-	new_filename_1 = f"{sample}_{sample_name}_{sample_level_barcode_1}_index3_{ending}"
-	new_filename_2 = f"{sample}_{sample_name}_{sample_level_barcode_2}_index4_{ending}"
-	new_filename_3 = f"{sample}_{sample_name}_{sample_level_barcode_3}_index5_{ending}"
-	new_filename_4 = f"{sample}_{sample_name}_{sample_level_barcode_4}_index6_{ending}"
 
-	new_filename_5 = f"{sample}_{sample_name}_unassigned_{ending}"
-	# print (new_filename)
+	new_filenames = []
+	
+	new_filename_1 = f"{sample}_{sample_name}_{sample_level_barcode_1}_index1_{ending}"
+	new_filenames.append(f"{new_filename_1}:{sample_level_barcode_1}")
+	
+	# new_filename_2 = f"{sample}_{sample_name}_{sample_level_barcode_2}_index2_{ending}"
+	# new_filenames.append(f"{}:{}")
+	
+	new_filename_3 = f"{sample}_{sample_name}_{sample_level_barcode_3}_index3_{ending}"
+	new_filenames.append(f"{new_filename_3}:{sample_level_barcode_3}")
+	
+	new_filename_4 = f"{sample}_{sample_name}_{sample_level_barcode_4}_index4_{ending}"
+	new_filenames.append(f"{new_filename_4}:{sample_level_barcode_4}")
+	
+	new_filename_5 = f"{sample}_{sample_name}_{sample_level_barcode_5}_index5_{ending}"
+	new_filenames.append(f"{new_filename_5}:{sample_level_barcode_5}")
+	
+	new_filename_6 = f"{sample}_{sample_name}_{sample_level_barcode_6}_index6_{ending}"
+	new_filenames.append(f"{new_filename_6}:{sample_level_barcode_6}")
 
-	fhs[sample_level_barcode_1] = gzip.open (new_filename_1,mode='wb',compresslevel=3)
-	fhs[sample_level_barcode_2] = gzip.open (new_filename_2,mode='wb',compresslevel=3)
-	fhs[sample_level_barcode_3] = gzip.open (new_filename_3,mode='wb',compresslevel=3)
-	fhs[sample_level_barcode_4] = gzip.open (new_filename_4,mode='wb',compresslevel=3)
-	fhs["unassigned"] = gzip.open (new_filename_5,mode='wb',compresslevel=3)
+	# Unassigned file
+	new_filename_7 = f"{sample}_{sample_name}_unassigned_{ending}"
+	new_filenames.append(f"{new_filename_7}:unassigned")
+
+	for new_fh in new_filenames:
+		open_filehandles(new_fh.split(":")[1], new_fh.split(":")[0])
+
+def open_filehandles(sample_level_barcode, fname):
+		print (f"Opening filehandle for {sample_level_barcode} and {fname}")
+		fhs[sample_level_barcode] = gzip.open (fname,mode='wb',compresslevel=3)
 
 def eprint(*args, **kwargs):
     print(*args, file=sys.stderr, **kwargs)	
