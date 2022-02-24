@@ -19,7 +19,7 @@ import re
 # After moving the UMI and sample-level barcode sequences, the script looks for up to 3 T at the start of the sequence, and removes those.
 # Sequences with more than 3 Ts at the 5' end are clipped a maximum of 3 TTT
 
-# Script last modified  03 September 2021, Felix Krueger
+# Script last modified  21 February 2022 to add some additional indexes, Felix Krueger
 
 polyT = {}         # storing the number of Poly Ts at the start of the read (after the UMI)
 fhs = {}           # storing the filehandles for all output files
@@ -123,8 +123,19 @@ def main(filename):
 			# print ("\n".join([readID, new_rest, line3, new_rest_qual]))
 
 			### First generation
-			# currently indexes 1, 3, 4, 5, or 6
-			if sampleBarcode == "AGTC" or sampleBarcode == "CTTG" or sampleBarcode == "TCGA" or sampleBarcode == "TTCC" or sampleBarcode == "AAGG":
+
+			# sample_level_barcode_1 = "AGTC"  ### first generation - now with a new supplier (Sept 03, 2021)
+			# # sample_level_barcode_2 = "GACT"  ### first generation
+			# sample_level_barcode_3 = "CTTG" 
+			# # sample_level_barcode_4 = "TCGA"
+			# sample_level_barcode_5 = "AAGG"
+			# sample_level_barcode_6 = "TTCC" 
+			# sample_level_barcode_7 = "GTGC" 
+			# sample_level_barcode_8 = "GCCA" 
+			# sample_level_barcode_9 = "GATG" 
+
+			# currently indexes 1, 3, 5, 6, 7, 8, 9
+			if sampleBarcode == "AGTC" or sampleBarcode == "CTTG" or sampleBarcode == "TCGA" or sampleBarcode == "TTCC" or sampleBarcode == "AAGG"or sampleBarcode == "GTGC" or sampleBarcode == "GCCA" or sampleBarcode == "GATG":
 				# print (f"Expected: {sampleBarcode}")
 				fhs[sampleBarcode].write (("\n".join([readID, new_rest, line3, new_rest_qual]) + "\n").encode())
 			else:
@@ -161,7 +172,6 @@ def make_out_filehandle(sample_name,filename):
 	# extracting useful parts from filename
 	# Example name: lane7265_ACTTGA_fob1_YPD_LIGseq_L001_R1.fastq.gz
 	
-
 	### Update 21 July 2021
 	# 	TrAEL index	In the adaptor	What is actually read
 	# 1	GACT	agtc - no longer used
@@ -171,15 +181,29 @@ def make_out_filehandle(sample_name,filename):
 	# 5	GGAA	ttcc
 	# 6	CCTT	aagg
 
+	### Update 21 February 2022
+	# Index	In the adaptor	What is actually read	
+	# 1	GACT	agtc	
+	# 2	AGTC	gact	
+	# 3	CAAG	cttg	
+	# 4	TCGA	tcga	
+	# 5	CCTT	aagg	
+	# 6	GGAA	ttcc	new
+	# 7	GCAC	gtgc	new
+	# 8	TGGC	gcca	new
+	# 9	CATC	gatg	new
+
 	# We will also need to add the sample level barcodes to the filename.
 	sample_level_barcode_1 = "AGTC"  ### first generation - now with a new supplier (Sept 03, 2021)
-	# sample_level_barcode_2 = "GACT"  ### first generation
+	sample_level_barcode_2 = "GACT"  ### first generation
 	sample_level_barcode_3 = "CTTG" 
 	sample_level_barcode_4 = "TCGA"
-	sample_level_barcode_5 = "TTCC" 
-	sample_level_barcode_6 = "AAGG"
+	sample_level_barcode_5 = "AAGG"
+	sample_level_barcode_6 = "TTCC" 
+	sample_level_barcode_7 = "GTGC" 
+	sample_level_barcode_8 = "GCCA" 
+	sample_level_barcode_9 = "GATG" 
 	
-
 	pattern = '(lane.*_L00\d)_(R\d.fastq.gz)'
 	p = re.compile(pattern)
 	print (filename)
@@ -192,8 +216,8 @@ def make_out_filehandle(sample_name,filename):
 	new_filename_1 = f"{sample}_{sample_name}_{sample_level_barcode_1}_index1_{ending}"
 	new_filenames.append(f"{new_filename_1}:{sample_level_barcode_1}")
 	
-	# new_filename_2 = f"{sample}_{sample_name}_{sample_level_barcode_2}_index2_{ending}"
-	# new_filenames.append(f"{}:{}")
+	new_filename_2 = f"{sample}_{sample_name}_{sample_level_barcode_2}_index2_{ending}"
+	new_filenames.append(f"{new_filename_2}:{sample_level_barcode_2}")
 	
 	new_filename_3 = f"{sample}_{sample_name}_{sample_level_barcode_3}_index3_{ending}"
 	new_filenames.append(f"{new_filename_3}:{sample_level_barcode_3}")
@@ -207,9 +231,18 @@ def make_out_filehandle(sample_name,filename):
 	new_filename_6 = f"{sample}_{sample_name}_{sample_level_barcode_6}_index6_{ending}"
 	new_filenames.append(f"{new_filename_6}:{sample_level_barcode_6}")
 
+	new_filename_7 = f"{sample}_{sample_name}_{sample_level_barcode_7}_index7_{ending}"
+	new_filenames.append(f"{new_filename_7}:{sample_level_barcode_7}")
+
+	new_filename_8 = f"{sample}_{sample_name}_{sample_level_barcode_8}_index8_{ending}"
+	new_filenames.append(f"{new_filename_8}:{sample_level_barcode_8}")
+
+	new_filename_9 = f"{sample}_{sample_name}_{sample_level_barcode_9}_index9_{ending}"
+	new_filenames.append(f"{new_filename_9}:{sample_level_barcode_9}")
+
 	# Unassigned file
-	new_filename_7 = f"{sample}_{sample_name}_unassigned_{ending}"
-	new_filenames.append(f"{new_filename_7}:unassigned")
+	new_filename_10 = f"{sample}_{sample_name}_unassigned_{ending}"
+	new_filenames.append(f"{new_filename_10}:unassigned")
 
 	for new_fh in new_filenames:
 		open_filehandles(new_fh.split(":")[1], new_fh.split(":")[0])
